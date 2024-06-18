@@ -9,15 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
-* controller의 역할 외 로직들이 많이 섞여있지만, 우선 최소한의 단위 테스트 통과를 목표로 구현하였습니다.
- * 향후 아래 내용을 추가할 계획입니다.
- * - 이후 입력값에 대한 validation 구현
- * - controller 외 로직들을 service로 빼내 역할 분리
- * - 레이어드 아키텍처로 패키지 구조 개선
- * - 레이어별 단위 테스트
- * - mockMvc를 활용한 API 테스트 추가
- */
+// 우선 최소한의 단위 테스트 통과를 목표로 구현하였습니다.
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/point")
@@ -75,6 +67,8 @@ public class PointController {
         UserPoint userPoint = userPointTable.selectById(id);
 
         // 포인트 부족 예외 클래스를 추가하고, advice 에서 해당 예외를 핸들링하도록 구현하였습니다.
+        // logging 처리가 적절했는지 고민이었던 것 같습니다(실무에서 logging의 베스트 프랙티스가 있다면
+        // 어떤 것들이 있을지 혹시 조언을 들려주실 수 있다면 감사하겠습니다).
         if (userPoint.point() < amount) {
             log.error("포인트 부족 오류 발생: userId=" + id + ", 유저 보유 포인트=" + userPoint.point() +
                 ", 사용시도 포인트=" + amount);
