@@ -1,14 +1,19 @@
 package io.hhplus.tdd;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import io.hhplus.tdd.point.InsufficientPointsException;
 import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.TransactionType;
 import io.hhplus.tdd.point.UserPoint;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
+/**
+ * controller에 대한 최소한의 단위 테스트 작성하였습니다.
+ */
 public class PointControllerTest {
 
     @Test
@@ -81,7 +86,7 @@ public class PointControllerTest {
     }
 
     @Test
-    public void 특정_유저의_포인트를_충전할_시_유저의_포인트_합산_정보를_반환한다() {
+    public void 특정_유저의_포인트를_충전할_시_합산후_포인트_정산_정보를_반환한다() {
         // given
         TestContainer testContainer = TestContainer.builder().build();
 
@@ -97,7 +102,7 @@ public class PointControllerTest {
     }
 
     @Test
-    public void 특정_유저의_포인트를_사용할_시_유저의_포인트_정산_정보를_반환한다() {
+    public void 특정_유저의_포인트를_사용할_시_포인트_차감후_포인트_정산_정보를_반환한다() {
         // given
         TestContainer testContainer = TestContainer.builder().build();
         testContainer.userPointTable.insertOrUpdate(7L, 1_000L);
@@ -110,5 +115,18 @@ public class PointControllerTest {
             () -> assertThat(result.id()).isEqualTo(7L),
             () -> assertThat(result.point()).isEqualTo(900L)
         );
+    }
+
+    @Test
+    public void 특정_유저가_보유한_포인트보다_많은_포인트를_사용하려_할_경우_에러를_반환한다() {
+        // given
+        TestContainer testContainer = TestContainer.builder().build();
+        testContainer.userPointTable.insertOrUpdate(7L, 200L);
+
+        // when
+        // then
+        assertThatThrownBy(() -> {
+            testContainer.pointController.use(7L, 500L);
+        }).isInstanceOf(InsufficientPointsException.class);
     }
 }
