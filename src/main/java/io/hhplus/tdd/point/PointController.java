@@ -1,8 +1,8 @@
-package io.hhplus.tdd.controller;
+package io.hhplus.tdd.point;
 
-import io.hhplus.tdd.domain.PointHistory;
-import io.hhplus.tdd.domain.UserPoint;
-import io.hhplus.tdd.service.PointService;
+import io.hhplus.tdd.database.PointHistoryTable;
+import io.hhplus.tdd.database.UserPointTable;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * controller에서 http 요청 수신, 응답 외의 로직들이 들어가게 되어 service로 역할과 책임을 분리하였습니다.
- */
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/point")
@@ -21,7 +18,8 @@ public class PointController {
     private static final Logger log =
         LoggerFactory.getLogger(PointController.class);
 
-    private final PointService pointService;
+    private final UserPointTable userPointTable;
+    private final PointHistoryTable pointHistoryTable;
 
     /**
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
@@ -30,7 +28,7 @@ public class PointController {
     public UserPoint point(
             @PathVariable long id
     ) {
-        return pointService.getByUserId(id);
+        return userPointTable.selectById(id);
     }
 
     /**
@@ -40,7 +38,7 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return pointService.getHistoriesByUserId(id);
+        return pointHistoryTable.selectAllByUserId(id);
     }
 
     /**
@@ -51,7 +49,11 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return pointService.charge(id, amount);
+        pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
+
+        UserPoint userPoint = userPointTable.selectById(id);
+
+        return userPointTable.insertOrUpdate(id, userPoint.point() + amount);
     }
 
     /**
@@ -62,6 +64,10 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return pointService.use(id, amount);
+        pointHistoryTable.insert(id, amount, TransactionType.USE, System.currentTimeMillis());
+
+        UserPoint userPoint = userPointTable.selectById(id);
+
+        return userPointTable.insertOrUpdate(id, userPoint.point() - amount);
     }
 }

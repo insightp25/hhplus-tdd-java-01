@@ -3,9 +3,9 @@ package io.hhplus.tdd;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import io.hhplus.tdd.domain.PointHistory;
-import io.hhplus.tdd.domain.TransactionType;
-import io.hhplus.tdd.domain.UserPoint;
+import io.hhplus.tdd.point.PointHistory;
+import io.hhplus.tdd.point.TransactionType;
+import io.hhplus.tdd.point.UserPoint;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 

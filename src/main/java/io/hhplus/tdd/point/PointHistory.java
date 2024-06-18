@@ -1,4 +1,4 @@
-package io.hhplus.tdd.domain;
+package io.hhplus.tdd.point;
 
 public record PointHistory(
         long id,

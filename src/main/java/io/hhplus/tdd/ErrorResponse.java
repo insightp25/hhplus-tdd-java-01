@@ -1,4 +1,4 @@
-package io.hhplus.tdd.controller.response;
+package io.hhplus.tdd;
 
 public record ErrorResponse(
         String code,
