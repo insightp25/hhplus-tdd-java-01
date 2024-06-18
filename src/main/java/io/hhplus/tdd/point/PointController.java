@@ -1,16 +1,25 @@
 package io.hhplus.tdd.point;
 
+import io.hhplus.tdd.database.PointHistoryTable;
+import io.hhplus.tdd.database.UserPointTable;
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/point")
 public class PointController {
 
-    private static final Logger log = LoggerFactory.getLogger(PointController.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(PointController.class);
+
+    private final UserPointTable userPointTable;
+    private final PointHistoryTable pointHistoryTable;
 
     /**
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
@@ -19,7 +28,7 @@ public class PointController {
     public UserPoint point(
             @PathVariable long id
     ) {
-        return new UserPoint(0, 0, 0);
+        return userPointTable.selectById(id);
     }
 
     /**
@@ -29,7 +38,7 @@ public class PointController {
     public List<PointHistory> history(
             @PathVariable long id
     ) {
-        return List.of();
+        return pointHistoryTable.selectAllByUserId(id);
     }
 
     /**
@@ -40,7 +49,11 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+        pointHistoryTable.insert(id, amount, TransactionType.CHARGE, System.currentTimeMillis());
+
+        UserPoint userPoint = userPointTable.selectById(id);
+
+        return userPointTable.insertOrUpdate(id, userPoint.point() + amount);
     }
 
     /**
@@ -51,6 +64,10 @@ public class PointController {
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return new UserPoint(0, 0, 0);
+        pointHistoryTable.insert(id, amount, TransactionType.USE, System.currentTimeMillis());
+
+        UserPoint userPoint = userPointTable.selectById(id);
+
+        return userPointTable.insertOrUpdate(id, userPoint.point() - amount);
     }
 }
