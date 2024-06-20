@@ -20,30 +20,22 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PointService {
 
-    private static final Logger log =
-        LoggerFactory.getLogger(PointController.class);
+    private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
     private final UserPointTable userPointTable;
     private final PointHistoryTable pointHistoryTable;
 
     private final Lock lock = new ReentrantLock();
 
-    public UserPoint getByUserId(
-        long userId
-    ) {
+    public UserPoint getByUserId(long userId) {
         return userPointTable.selectById(userId);
     }
 
-    public List<PointHistory> getHistoriesByUserId(
-        long userId
-    ) {
+    public List<PointHistory> getHistoriesByUserId(long userId) {
         return pointHistoryTable.selectAllByUserId(userId);
     }
 
-    public UserPoint charge(
-        long userId,
-        long amount
-    ) {
+    public UserPoint charge(long userId, long amount) {
         validatePointGreaterThanZero(amount);
         UserPoint userPoint = userPointTable.selectById(userId);
 
@@ -60,10 +52,7 @@ public class PointService {
         return userPoint;
     }
 
-    public UserPoint use(
-        long userId,
-        long amount
-    ) {
+    public UserPoint use(long userId, long amount) {
         validatePointGreaterThanZero(amount);
         UserPoint userPoint = userPointTable.selectById(userId);
         validateSufficientPoints(amount, userPoint);
@@ -84,6 +73,7 @@ public class PointService {
     private static void validatePointGreaterThanZero(long amount) {
         if (amount <= 0) {
             log.warn("BadInputPointValueException: amount={}", amount);
+
             throw new BadInputPointValueException();
         }
     }
@@ -92,6 +82,7 @@ public class PointService {
         if (userPoint.point() < amount) {
             log.warn("InsufficientPointsException: requested amount={}, current amount={}",
                 amount, userPoint.point());
+
             throw new InsufficientPointsException();
         }
     }
