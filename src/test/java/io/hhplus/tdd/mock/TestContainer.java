@@ -1,7 +1,7 @@
 package io.hhplus.tdd.mock;
 
-import io.hhplus.tdd.repository.PointHistoryTable;
-import io.hhplus.tdd.repository.UserPointTable;
+import io.hhplus.tdd.infrastructure.PointHistoryTable;
+import io.hhplus.tdd.infrastructure.UserPointTable;
 import io.hhplus.tdd.controller.PointController;
 import io.hhplus.tdd.service.PointService;
 import lombok.Builder;
