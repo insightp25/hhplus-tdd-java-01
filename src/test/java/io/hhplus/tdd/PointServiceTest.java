@@ -1,4 +1,4 @@
-package io.hhplus.tdd.small.service;
+package io.hhplus.tdd;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -9,7 +9,6 @@ import io.hhplus.tdd.domain.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.domain.exception.BadInputPointValueException;
 import io.hhplus.tdd.domain.exception.InsufficientPointsException;
-import io.hhplus.tdd.mock.TestContainer;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 

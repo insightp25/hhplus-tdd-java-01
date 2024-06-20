@@ -1,11 +1,10 @@
-package io.hhplus.tdd.controller;
+package io.hhplus.tdd;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import io.hhplus.tdd.domain.exception.BadInputPointValueException;
-import io.hhplus.tdd.mock.TestContainer;
 import io.hhplus.tdd.domain.exception.InsufficientPointsException;
 import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.TransactionType;
@@ -16,7 +15,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 /**
- * controller에 대한 최소한의 단위 테스트 작성하였습니다.
+ * PointController 클래스에 대한 단위 테스트입니다.
+ * 각 테스트 테스트 메서드에 대한 주석 내용은 테스트 메서드 이름으로 대신하였습니다.
  */
 public class PointControllerTest {
 

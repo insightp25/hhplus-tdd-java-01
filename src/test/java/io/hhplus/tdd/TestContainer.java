@@ -1,4 +1,4 @@
-package io.hhplus.tdd.mock;
+package io.hhplus.tdd;
 
 import io.hhplus.tdd.infrastructure.PointHistoryTable;
 import io.hhplus.tdd.infrastructure.UserPointTable;
