@@ -1,4 +1,4 @@
-package io.hhplus.tdd.point;
+package io.hhplus.tdd.domain.exception;
 
 public class InsufficientPointsException extends RuntimeException {
     public InsufficientPointsException() {

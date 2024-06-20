@@ -1,13 +1,14 @@
-package io.hhplus.tdd;
+package io.hhplus.tdd.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import io.hhplus.tdd.point.InsufficientPointsException;
-import io.hhplus.tdd.point.PointHistory;
-import io.hhplus.tdd.point.TransactionType;
-import io.hhplus.tdd.point.UserPoint;
+import io.hhplus.tdd.mock.TestContainer;
+import io.hhplus.tdd.domain.exception.InsufficientPointsException;
+import io.hhplus.tdd.domain.PointHistory;
+import io.hhplus.tdd.domain.TransactionType;
+import io.hhplus.tdd.domain.UserPoint;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,7 @@
-package io.hhplus.tdd;
+package io.hhplus.tdd.controller;
 
-import io.hhplus.tdd.point.InsufficientPointsException;
+import io.hhplus.tdd.controller.response.ErrorResponse;
+import io.hhplus.tdd.domain.exception.InsufficientPointsException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,5 +17,10 @@ class ApiControllerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = InsufficientPointsException.class)
     public ResponseEntity<ErrorResponse> handleInsufficientPointsException(Exception e) {
         return ResponseEntity.status(409).body(new ErrorResponse("409", "포인트 잔액이 부족합니다."));
+    }
+
+    @ExceptionHandler(value = InsufficientPointsException.class)
+    public ResponseEntity<ErrorResponse> InvalidPointsException(Exception e) {
+        return ResponseEntity.status(400).body(new ErrorResponse("400", "잘못된 포인트 입력입니다."));
     }
 }
