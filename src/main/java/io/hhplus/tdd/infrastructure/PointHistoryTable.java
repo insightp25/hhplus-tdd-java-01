@@ -1,4 +1,4 @@
-package io.hhplus.tdd.repository;
+package io.hhplus.tdd.infrastructure;
 
 
 import io.hhplus.tdd.domain.PointHistory;
