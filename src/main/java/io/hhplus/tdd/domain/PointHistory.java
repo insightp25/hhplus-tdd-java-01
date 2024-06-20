@@ -5,5 +5,6 @@ public record PointHistory(
         long userId,
         long amount,
         TransactionType type,
-        long updateMillis) {
+        long updateMillis
+) {
 }
