@@ -5,7 +5,7 @@ import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.domain.exception.InsufficientPointsException;
-import io.hhplus.tdd.domain.exception.InvalidPointsException;
+import io.hhplus.tdd.domain.exception.BadInputPointValueException;
 import io.hhplus.tdd.repository.PointHistoryTable;
 import io.hhplus.tdd.repository.UserPointTable;
 import java.util.List;
@@ -44,7 +44,7 @@ public class PointService {
         long userId,
         long amount
     ) {
-        validateInputPoint(amount);
+        validatePointGreaterThanZero(amount);
         UserPoint userPoint = userPointTable.selectById(userId);
 
         lock.lock();
@@ -64,7 +64,7 @@ public class PointService {
         long userId,
         long amount
     ) {
-        validateInputPoint(amount);
+        validatePointGreaterThanZero(amount);
         UserPoint userPoint = userPointTable.selectById(userId);
         validateSufficientPoints(amount, userPoint);
 
@@ -81,10 +81,10 @@ public class PointService {
         return userPoint;
     }
 
-    private static void validateInputPoint(long amount) {
+    private static void validatePointGreaterThanZero(long amount) {
         if (amount <= 0) {
-            log.warn("InvalidPointsException: amount={}", amount);
-            throw new InvalidPointsException();
+            log.warn("BadInputPointValueException: amount={}", amount);
+            throw new BadInputPointValueException();
         }
     }
 

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import io.hhplus.tdd.domain.exception.BadInputPointValueException;
 import io.hhplus.tdd.mock.TestContainer;
 import io.hhplus.tdd.domain.exception.InsufficientPointsException;
 import io.hhplus.tdd.domain.PointHistory;
@@ -11,6 +12,8 @@ import io.hhplus.tdd.domain.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 
 /**
  * controller에 대한 최소한의 단위 테스트 작성하였습니다.
@@ -24,12 +27,14 @@ public class PointControllerTest {
         testContainer.userPointTable.insertOrUpdate(7L, 500);
 
         // when
-        UserPoint result = testContainer.pointController.point(7L);
+        ResponseEntity<UserPoint> result = testContainer.pointController.point(7L);
 
         // then
         assertAll(
-            () -> assertThat(result.id()).isEqualTo(7L),
-            () -> assertThat(result.point()).isEqualTo(500L)
+            () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
+            () -> assertThat(result.getBody()).isNotNull(),
+            () -> assertThat(result.getBody().id()).isEqualTo(7L),
+            () -> assertThat(result.getBody().point()).isEqualTo(500L)
         );
     }
 
@@ -39,51 +44,57 @@ public class PointControllerTest {
         TestContainer testContainer = TestContainer.builder().build();
 
         // when
-        UserPoint result = testContainer.pointController.point(7L);
+        ResponseEntity<UserPoint> result = testContainer.pointController.point(7L);
 
         // then
         assertAll(
-            () -> assertThat(result.id()).isEqualTo(7L),
-            () -> assertThat(result.point()).isEqualTo(0L)
+            () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
+            () -> assertThat(result.getBody().id()).isEqualTo(7L),
+            () -> assertThat(result.getBody().point()).isEqualTo(0L)
         );
     }
 
     @Test
-    public void 특정_유저의_포인트_충전_또는_이용_내역을_조회할_수_있다() {
+    public void 특정_유저의_포인트_히스토리를_조회할_수_있다() {
         // given
         TestContainer testContainer = TestContainer.builder().build();
-        testContainer.pointHistoryTable.insert(7L, 500L, TransactionType.CHARGE, 12345L);
-        testContainer.pointHistoryTable.insert(7L, 300L, TransactionType.USE, 67890L);
+        testContainer.pointHistoryTable.insert(7L, 500L, TransactionType.CHARGE, 12_345L);
+        testContainer.pointHistoryTable.insert(7L, 300L, TransactionType.USE, 67_890L);
 
         // when
-        List<PointHistory> result = testContainer.pointController.history(7L);
+        ResponseEntity<List<PointHistory>> result = testContainer.pointController.history(7L);
 
         // then
         assertAll(
-            () -> assertThat(result.size()).isEqualTo(2),
-            () -> assertThat(result.get(0).id()).isEqualTo(1L),
-            () -> assertThat(result.get(0).userId()).isEqualTo(7L),
-            () -> assertThat(result.get(0).amount()).isEqualTo(500L),
-            () -> assertThat(result.get(0).type()).isEqualTo(TransactionType.CHARGE),
-            () -> assertThat(result.get(0).updateMillis()).isEqualTo(12345L),
-            () -> assertThat(result.get(1).id()).isEqualTo(2L),
-            () -> assertThat(result.get(1).userId()).isEqualTo(7L),
-            () -> assertThat(result.get(1).amount()).isEqualTo(300L),
-            () -> assertThat(result.get(1).type()).isEqualTo(TransactionType.USE),
-            () -> assertThat(result.get(1).updateMillis()).isEqualTo(67890L)
+            () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
+            () -> assertThat(result.getBody()).isNotNull(),
+            () -> assertThat(result.getBody().size()).isEqualTo(2),
+            () -> assertThat(result.getBody().get(0).id()).isEqualTo(1L),
+            () -> assertThat(result.getBody().get(0).userId()).isEqualTo(7L),
+            () -> assertThat(result.getBody().get(0).amount()).isEqualTo(500L),
+            () -> assertThat(result.getBody().get(0).type()).isEqualTo(TransactionType.CHARGE),
+            () -> assertThat(result.getBody().get(0).updateMillis()).isEqualTo(12_345L),
+            () -> assertThat(result.getBody().get(1).id()).isEqualTo(2L),
+            () -> assertThat(result.getBody().get(1).userId()).isEqualTo(7L),
+            () -> assertThat(result.getBody().get(1).amount()).isEqualTo(300L),
+            () -> assertThat(result.getBody().get(1).type()).isEqualTo(TransactionType.USE),
+            () -> assertThat(result.getBody().get(1).updateMillis()).isEqualTo(67_890L)
         );
     }
 
     @Test
-    public void 특정_유저의_포인트_충전_내역이_없을_시_빈_리스트를_반환한다() {
+    public void 특정_유저의_포인트_충전_내역이_없을_시_빈_내역을_반환한다() {
         // given
         TestContainer testContainer = TestContainer.builder().build();
 
         // when
-        List<PointHistory> result = testContainer.pointController.history(7L);
+        ResponseEntity<List<PointHistory>> result = testContainer.pointController.history(7L);
 
         // then
-        assertThat(result).isEmpty();
+        assertAll(
+            () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
+            () -> assertThat(result.getBody()).isEmpty()
+        );
     }
 
     @Test
@@ -93,12 +104,35 @@ public class PointControllerTest {
 
         // when
         testContainer.pointController.charge(7L, 500L);
-        UserPoint result = testContainer.pointController.charge(7L, 500L);
+        ResponseEntity<UserPoint> result = testContainer.pointController.charge(7L, 500L);
 
         // then
         assertAll(
-            () -> assertThat(result.id()).isEqualTo(7L),
-            () -> assertThat(result.point()).isEqualTo(1_000L)
+            () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
+            () -> assertThat(result.getBody()).isNotNull(),
+            () -> assertThat(result.getBody().id()).isEqualTo(7L),
+            () -> assertThat(result.getBody().point()).isEqualTo(1_000L)
+        );
+    }
+
+    @Test
+    public void 특정_유저의_포인트를_충전할_시_충전내역이_히스토리에_기록된다() {
+        // given
+        TestContainer testContainer = TestContainer.builder().build();
+
+        // when
+        testContainer.pointController.charge(7L, 500L);
+        ResponseEntity<List<PointHistory>> result = testContainer.pointController.history(7L);
+
+        // then
+        assertAll(
+            () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
+            () -> assertThat(result.getBody()).isNotNull(),
+            () -> assertThat(result.getBody().size()).isEqualTo(1),
+            () -> assertThat(result.getBody().get(0).id()).isEqualTo(1L),
+            () -> assertThat(result.getBody().get(0).userId()).isEqualTo(7L),
+            () -> assertThat(result.getBody().get(0).amount()).isEqualTo(500L),
+            () -> assertThat(result.getBody().get(0).type()).isEqualTo(TransactionType.CHARGE)
         );
     }
 
@@ -109,13 +143,62 @@ public class PointControllerTest {
         testContainer.userPointTable.insertOrUpdate(7L, 1_000L);
 
         // when
-        UserPoint result = testContainer.pointController.use(7L, 100L);
+        ResponseEntity<UserPoint> result = testContainer.pointController.use(7L, 100L);
 
         // then
         assertAll(
-            () -> assertThat(result.id()).isEqualTo(7L),
-            () -> assertThat(result.point()).isEqualTo(900L)
+            () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
+            () -> assertThat(result.getBody()).isNotNull(),
+            () -> assertThat(result.getBody().id()).isEqualTo(7L),
+            () -> assertThat(result.getBody().point()).isEqualTo(1_000L - 100L)
         );
+    }
+
+    @Test
+    public void 특정_유저의_포인트를_사용할_시_사용내역이_히스토리에_기록된다() {
+        // given
+        TestContainer testContainer = TestContainer.builder().build();
+        testContainer.userPointTable.insertOrUpdate(7L, 1_000L);
+        testContainer.pointHistoryTable.insert(7L, 1_000L, TransactionType.CHARGE, 12_345L);
+
+        // when
+        testContainer.pointController.use(7L, 300L);
+        ResponseEntity<List<PointHistory>> result = testContainer.pointController.history(7L);
+
+        // then
+        assertAll(
+            () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
+            () -> assertThat(result.getBody()).isNotNull(),
+            () -> assertThat(result.getBody().size()).isEqualTo(2),
+            () -> assertThat(result.getBody().get(1).id()).isEqualTo(2L),
+            () -> assertThat(result.getBody().get(1).userId()).isEqualTo(7L),
+            () -> assertThat(result.getBody().get(1).amount()).isEqualTo(300L),
+            () -> assertThat(result.getBody().get(1).type()).isEqualTo(TransactionType.USE)
+        );
+    }
+
+    @Test
+    public void 포인트_충전시_0_이하의_정수를_충전포인트_값으로_입력할_경우_에러를_던진다() {
+        // given
+        TestContainer testContainer = TestContainer.builder().build();
+
+        // when
+        // then
+        assertThatThrownBy(() -> {
+            testContainer.pointController.charge(7L, -500L);
+        }).isInstanceOf(BadInputPointValueException.class);
+    }
+
+    @Test
+    public void 포인트_사용시_0_이하의_정수를_사용포인트_값으로_입력할_경우_에러를_던진다() {
+        // given
+        TestContainer testContainer = TestContainer.builder().build();
+
+        // when
+        // then
+        assertThatThrownBy(() -> {
+            testContainer.pointController.use(7L, -500L);
+        }).isInstanceOf(BadInputPointValueException.class);
     }
 
     @Test

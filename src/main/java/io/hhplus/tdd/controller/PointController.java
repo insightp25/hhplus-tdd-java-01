@@ -5,6 +5,7 @@ import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.service.PointService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,41 +24,49 @@ public class PointController {
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
      */
     @GetMapping("{id}")
-    public UserPoint point(
+    public ResponseEntity<UserPoint> point(
             @PathVariable long id
     ) {
-        return pointService.getByUserId(id);
+        return ResponseEntity
+            .ok()
+            .body(pointService.getByUserId(id));
     }
 
     /**
      * TODO - 특정 유저의 포인트 충전/이용 내역을 조회하는 기능을 작성해주세요.
      */
     @GetMapping("{id}/histories")
-    public List<PointHistory> history(
+    public ResponseEntity<List<PointHistory>> history(
             @PathVariable long id
     ) {
-        return pointService.getHistoriesByUserId(id);
+        return ResponseEntity
+            .ok()
+            .body(pointService.getHistoriesByUserId(id));
     }
 
     /**
      * TODO - 특정 유저의 포인트를 충전하는 기능을 작성해주세요.
      */
     @PatchMapping("{id}/charge")
-    public UserPoint charge(
+    public ResponseEntity<UserPoint> charge(
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return pointService.charge(id, amount);
+        return ResponseEntity
+            .ok()
+            .body(pointService.charge(id, amount));
     }
 
     /**
      * TODO - 특정 유저의 포인트를 사용하는 기능을 작성해주세요.
      */
     @PatchMapping("{id}/use")
-    public UserPoint use(
+    public ResponseEntity<UserPoint> use(
             @PathVariable long id,
             @RequestBody long amount
     ) {
-        return pointService.use(id, amount);
+        return ResponseEntity
+            .ok()
+            .body(pointService.use(id, amount));
     }
 }
