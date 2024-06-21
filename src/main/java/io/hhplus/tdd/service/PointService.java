@@ -37,37 +37,39 @@ public class PointService {
 
     public UserPoint charge(long userId, long amount) {
         validatePointGreaterThanZero(amount);
-        UserPoint userPoint = userPointTable.selectById(userId);
 
         lock.lock();
         try {
+            UserPoint userPoint = userPointTable.selectById(userId);
+            userPoint = userPointTable.insertOrUpdate(userId, userPoint.point() + amount);
+
             pointHistoryTable.insert(userId, amount, TransactionType.CHARGE,
                 System.currentTimeMillis());
 
-            userPoint = userPointTable.insertOrUpdate(userId, userPoint.point() + amount);
+            return userPoint;
         } finally {
             lock.unlock();
         }
-
-        return userPoint;
     }
 
     public UserPoint use(long userId, long amount) {
         validatePointGreaterThanZero(amount);
-        UserPoint userPoint = userPointTable.selectById(userId);
-        validateSufficientPoints(amount, userPoint);
 
         lock.lock();
         try {
+            UserPoint userPoint = userPointTable.selectById(userId);
+
+            validateSufficientPoints(amount, userPoint);
+
+            userPoint = userPointTable.insertOrUpdate(userId, userPoint.point() - amount);
+
             pointHistoryTable.insert(userId, amount, TransactionType.USE,
                 System.currentTimeMillis());
 
-            userPoint = userPointTable.insertOrUpdate(userId, userPoint.point() - amount);
+            return userPoint;
         } finally {
             lock.unlock();
         }
-
-        return userPoint;
     }
 
     private static void validatePointGreaterThanZero(long amount) {
