@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import io.hhplus.tdd.controller.request.UserPointUpdate;
 import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
@@ -104,8 +105,12 @@ public class PointControllerTest {
         TestContainer testContainer = TestContainer.builder().build();
 
         // when
-        testContainer.pointController.charge(7L, 500L);
-        ResponseEntity<UserPoint> result = testContainer.pointController.charge(7L, 500L);
+        testContainer.pointController.charge(7L, UserPointUpdate.builder()
+            .amount(500L)
+            .build());
+        ResponseEntity<UserPoint> result = testContainer.pointController.charge(7L, UserPointUpdate.builder()
+            .amount(500L)
+            .build());
 
         // then
         assertAll(
@@ -122,7 +127,9 @@ public class PointControllerTest {
         TestContainer testContainer = TestContainer.builder().build();
 
         // when
-        testContainer.pointController.charge(7L, 500L);
+        testContainer.pointController.charge(7L, UserPointUpdate.builder()
+            .amount(500L)
+            .build());
         ResponseEntity<List<PointHistory>> result = testContainer.pointController.history(7L);
 
         // then
@@ -144,7 +151,9 @@ public class PointControllerTest {
         testContainer.userPointTable.insertOrUpdate(7L, 1_000L);
 
         // when
-        ResponseEntity<UserPoint> result = testContainer.pointController.use(7L, 100L);
+        ResponseEntity<UserPoint> result = testContainer.pointController.use(7L, UserPointUpdate.builder()
+                .amount(100L)
+                .build());
 
         // then
         assertAll(
@@ -163,7 +172,9 @@ public class PointControllerTest {
         testContainer.pointHistoryTable.insert(7L, 1_000L, TransactionType.CHARGE, 12_345L);
 
         // when
-        testContainer.pointController.use(7L, 300L);
+        testContainer.pointController.use(7L, UserPointUpdate.builder()
+            .amount(300L)
+            .build());
         ResponseEntity<List<PointHistory>> result = testContainer.pointController.history(7L);
 
         // then
@@ -186,7 +197,9 @@ public class PointControllerTest {
         // when
         // then
         assertThatThrownBy(() -> {
-            testContainer.pointController.charge(7L, -500L);
+            testContainer.pointController.charge(7L, UserPointUpdate.builder()
+                .amount(-500L)
+                .build());
         }).isInstanceOf(BadInputPointValueException.class);
     }
 
@@ -198,7 +211,9 @@ public class PointControllerTest {
         // when
         // then
         assertThatThrownBy(() -> {
-            testContainer.pointController.use(7L, -500L);
+            testContainer.pointController.use(7L, UserPointUpdate.builder()
+                .amount(-500L)
+                .build());
         }).isInstanceOf(BadInputPointValueException.class);
     }
 
@@ -211,7 +226,9 @@ public class PointControllerTest {
         // when
         // then
         assertThatThrownBy(() -> {
-            testContainer.pointController.use(7L, 500L);
+            testContainer.pointController.use(7L, UserPointUpdate.builder()
+                .amount(5_000L)
+                .build());
         }).isInstanceOf(InsufficientPointsException.class);
     }
 }

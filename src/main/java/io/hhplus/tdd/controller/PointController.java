@@ -1,5 +1,6 @@
 package io.hhplus.tdd.controller;
 
+import io.hhplus.tdd.controller.request.UserPointUpdate;
 import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.UserPoint;
 import io.hhplus.tdd.service.PointService;
@@ -45,12 +46,12 @@ public class PointController {
      */
     @PatchMapping("{id}/charge")
     public ResponseEntity<UserPoint> charge(
-            @PathVariable long id,
-            @RequestBody long amount
+        @PathVariable long id,
+        @RequestBody UserPointUpdate userPointUpdate
     ) {
         return ResponseEntity
             .ok()
-            .body(pointService.charge(id, amount));
+            .body(pointService.charge(id, userPointUpdate.amount()));
     }
 
     /**
@@ -58,11 +59,11 @@ public class PointController {
      */
     @PatchMapping("{id}/use")
     public ResponseEntity<UserPoint> use(
-            @PathVariable long id,
-            @RequestBody long amount
+        @PathVariable long id,
+        @RequestBody UserPointUpdate userPointUpdate
     ) {
         return ResponseEntity
             .ok()
-            .body(pointService.use(id, amount));
+            .body(pointService.use(id, userPointUpdate.amount()));
     }
 }
