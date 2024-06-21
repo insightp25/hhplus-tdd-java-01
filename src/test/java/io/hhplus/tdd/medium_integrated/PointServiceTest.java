@@ -13,6 +13,7 @@ import io.hhplus.tdd.infrastructure.PointHistoryTable;
 import io.hhplus.tdd.infrastructure.UserPointTable;
 import io.hhplus.tdd.service.PointService;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -213,5 +214,29 @@ public class PointServiceTest {
         assertThatThrownBy(() -> {
             pointService.use(7L, 500L);
         }).isInstanceOf(InsufficientPointsException.class);
+    }
+
+    @Test
+    @DirtiesContext
+    public void 특정_유저로부터_동시에_들어오는_포인트_업데이트_요청을_누락없이_모두_처리할_수_있다() {
+        // given
+        pointService.charge(7L, 10_000L);
+
+        // when
+        CompletableFuture.allOf(
+            CompletableFuture.runAsync(() -> {
+                pointService.use(7L, 3_000L);
+            }),
+            CompletableFuture.runAsync(() -> {
+                pointService.charge(7L, 5_000L);
+            }),
+            CompletableFuture.runAsync(() -> {
+                pointService.use(7L, 7_000L);
+            })
+        ).join();
+
+        // then
+        UserPoint userPoint = pointService.getByUserId(7L);
+        assertThat(userPoint.point()).isEqualTo(10_000L - 3_000L + 5_000L - 7_000L);
     }
 }
