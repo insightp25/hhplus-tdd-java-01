@@ -6,6 +6,11 @@ import io.hhplus.tdd.controller.PointController;
 import io.hhplus.tdd.service.PointService;
 import lombok.Builder;
 
+/**
+ * 단위 테스트용 모의 컨테이너를 생성했습니다.
+ * PointHistoryTable 과 UserPointTable 자체가 DB 계층의 Stub 이라고 생각하여,
+ * 컨테이너에서 Stub 으로서 그대로 사용하였습니다.
+ */
 public class TestContainer {
 
     public final PointHistoryTable pointHistoryTable;
