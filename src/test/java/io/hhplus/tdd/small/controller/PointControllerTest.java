@@ -24,6 +24,7 @@ public class PointControllerTest {
 
     @Test
     public void 특정_유저의_포인트_정보를_조회할_수_있다() {
+
         // given
         TestContainer testContainer = TestContainer.builder().build();
         testContainer.userPointTable.insertOrUpdate(7L, 500);
@@ -70,17 +71,10 @@ public class PointControllerTest {
         assertAll(
             () -> assertThat(result.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200)),
             () -> assertThat(result.getBody()).isNotNull(),
-            () -> assertThat(result.getBody().size()).isEqualTo(2),
-            () -> assertThat(result.getBody().get(0).id()).isEqualTo(1L),
-            () -> assertThat(result.getBody().get(0).userId()).isEqualTo(7L),
-            () -> assertThat(result.getBody().get(0).amount()).isEqualTo(500L),
-            () -> assertThat(result.getBody().get(0).type()).isEqualTo(TransactionType.CHARGE),
-            () -> assertThat(result.getBody().get(0).updateMillis()).isEqualTo(12_345L),
-            () -> assertThat(result.getBody().get(1).id()).isEqualTo(2L),
-            () -> assertThat(result.getBody().get(1).userId()).isEqualTo(7L),
-            () -> assertThat(result.getBody().get(1).amount()).isEqualTo(300L),
-            () -> assertThat(result.getBody().get(1).type()).isEqualTo(TransactionType.USE),
-            () -> assertThat(result.getBody().get(1).updateMillis()).isEqualTo(67_890L)
+            () -> assertThat(result.getBody()).isEqualTo(List.of(
+                new PointHistory(1L, 7L, 500L, TransactionType.CHARGE, 12_345L),
+                new PointHistory(2L, 7L, 300L, TransactionType.USE, 67_890L)
+            ))
         );
     }
 

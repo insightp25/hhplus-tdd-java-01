@@ -83,19 +83,10 @@ public class PointServiceTest {
         List<PointHistory> result = pointService.getHistoriesByUserId(7L);
 
         // then
-        assertAll(
-            () -> assertThat(result.size()).isEqualTo(2),
-            () -> assertThat(result.get(0).id()).isEqualTo(1L),
-            () -> assertThat(result.get(0).userId()).isEqualTo(7L),
-            () -> assertThat(result.get(0).amount()).isEqualTo(500L),
-            () -> assertThat(result.get(0).type()).isEqualTo(TransactionType.CHARGE),
-            () -> assertThat(result.get(0).updateMillis()).isEqualTo(12_345L),
-            () -> assertThat(result.get(1).id()).isEqualTo(2L),
-            () -> assertThat(result.get(1).userId()).isEqualTo(7L),
-            () -> assertThat(result.get(1).amount()).isEqualTo(300L),
-            () -> assertThat(result.get(1).type()).isEqualTo(TransactionType.USE),
-            () -> assertThat(result.get(1).updateMillis()).isEqualTo(67_890L)
-        );
+        assertThat(result).isEqualTo(List.of(
+            new PointHistory(1L, 7L, 500L, TransactionType.CHARGE, 12_345L),
+            new PointHistory(2L, 7L, 300L, TransactionType.USE, 67_890L)
+        ));
     }
 
     @Test

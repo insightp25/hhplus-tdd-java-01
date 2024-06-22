@@ -6,12 +6,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hhplus.tdd.controller.PointController;
 import io.hhplus.tdd.controller.request.UserPointUpdate;
+import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.TransactionType;
 import io.hhplus.tdd.infrastructure.PointHistoryTable;
 import io.hhplus.tdd.infrastructure.UserPointTable;
+import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,6 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * PointController 클래스에 대한 E2E 테스트입니다.
@@ -84,20 +89,18 @@ public class PointControllerTest {
 
         // when
         // then
-        mockMvc.perform(get("/point/7/histories"))
+        MvcResult mvcResult = mockMvc.perform(get("/point/7/histories"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0]").exists())
-            .andExpect(jsonPath("$[0].id").value(1L))
-            .andExpect(jsonPath("$[0].userId").value(7L))
-            .andExpect(jsonPath("$[0].amount").value(500L))
-            .andExpect(jsonPath("$[0].type").value("CHARGE"))
-            .andExpect(jsonPath("$[0].updateMillis").value(12_345L))
-            .andExpect(jsonPath("$[1].id").value(2L))
-            .andExpect(jsonPath("$[1].userId").value(7L))
-            .andExpect(jsonPath("$[1].amount").value(300L))
-            .andExpect(jsonPath("$[1].type").value("USE"))
-            .andExpect(jsonPath("$[1].updateMillis").value(67_890L));
+            .andReturn();
+
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        List<PointHistory> result = objectMapper.readValue(contentAsString, new TypeReference<>() {});
+
+        Assertions.assertThat(result).isEqualTo(List.of(
+                new PointHistory(1L, 7L, 500L, TransactionType.CHARGE, 12_345L),
+                new PointHistory(2L, 7L, 300L, TransactionType.USE, 67_890L)
+            ));
     }
 
     @Test
