@@ -74,17 +74,12 @@ public class PointService {
 
     private static void validatePointGreaterThanZero(long amount) {
         if (amount <= 0) {
-            log.warn("BadInputPointValueException: amount={}", amount);
-
             throw new BadInputPointValueException();
         }
     }
 
     private static void validateSufficientPoints(long amount, UserPoint userPoint) {
         if (userPoint.point() < amount) {
-            log.warn("InsufficientPointsException: requested amount={}, current amount={}",
-                amount, userPoint.point());
-
             throw new InsufficientPointsException();
         }
     }
