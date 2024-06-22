@@ -24,6 +24,7 @@ public class PointService {
 
     private final UserPointTable userPointTable;
     private final PointHistoryTable pointHistoryTable;
+    private final PointValidator pointValidator;
 
     private final Lock lock = new ReentrantLock();
 
@@ -36,7 +37,7 @@ public class PointService {
     }
 
     public UserPoint charge(long userId, long amount) {
-        validatePointGreaterThanZero(amount);
+        pointValidator.validatePointGreaterThanZero(amount);
 
         lock.lock();
         try {
@@ -53,13 +54,13 @@ public class PointService {
     }
 
     public UserPoint use(long userId, long amount) {
-        validatePointGreaterThanZero(amount);
+        pointValidator.validatePointGreaterThanZero(amount);
 
         lock.lock();
         try {
             UserPoint userPoint = userPointTable.selectById(userId);
 
-            validateSufficientPoints(amount, userPoint);
+            pointValidator.validateSufficientPoints(amount, userPoint);
 
             userPoint = userPointTable.insertOrUpdate(userId, userPoint.point() - amount);
 
@@ -69,18 +70,6 @@ public class PointService {
             return userPoint;
         } finally {
             lock.unlock();
-        }
-    }
-
-    private static void validatePointGreaterThanZero(long amount) {
-        if (amount <= 0) {
-            throw new BadInputPointValueException();
-        }
-    }
-
-    private static void validateSufficientPoints(long amount, UserPoint userPoint) {
-        if (userPoint.point() < amount) {
-            throw new InsufficientPointsException();
         }
     }
 }
