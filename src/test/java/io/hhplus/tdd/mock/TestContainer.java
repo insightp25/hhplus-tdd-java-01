@@ -3,6 +3,7 @@ package io.hhplus.tdd.mock;
 import io.hhplus.tdd.infrastructure.PointHistoryTable;
 import io.hhplus.tdd.infrastructure.UserPointTable;
 import io.hhplus.tdd.controller.PointController;
+import io.hhplus.tdd.service.LockHandler;
 import io.hhplus.tdd.service.PointService;
 import io.hhplus.tdd.service.PointValidator;
 import lombok.Builder;
@@ -19,13 +20,20 @@ public class TestContainer {
     public final PointService pointService;
     public final PointController pointController;
     public final PointValidator pointValidator;
+    public final LockHandler lockHandler;
 
     @Builder
     public TestContainer() {
         this.pointHistoryTable = new PointHistoryTable();
         this.userPointTable = new UserPointTable();
         this.pointValidator = new PointValidator();
-        this.pointService = new PointService(this.userPointTable, this.pointHistoryTable, this.pointValidator);
+        this.lockHandler = new LockHandler();
+        this.pointService = PointService.builder()
+            .userPointTable(this.userPointTable)
+            .pointHistoryTable(this.pointHistoryTable)
+            .pointValidator(this.pointValidator)
+            .lockHandler(this.lockHandler)
+            .build();
         this.pointController = new PointController(this.pointService);
     }
 }

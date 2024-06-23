@@ -2,6 +2,7 @@ package io.hhplus.tdd.controller;
 
 import io.hhplus.tdd.controller.exception.BaseException;
 import io.hhplus.tdd.controller.response.ErrorResponse;
+import java.util.concurrent.TimeoutException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,6 +17,15 @@ class ApiControllerAdvice extends ResponseEntityExceptionHandler {
         return ResponseEntity
             .status(Integer.parseInt(errorCode.getCode()))
             .body(new ErrorResponse(errorCode.getCode(), errorCode.getMessage()));
+    }
+
+    @ExceptionHandler(value = TimeoutException.class)
+    public ResponseEntity<ErrorResponse> handleTimeoutException(TimeoutException e) {
+        ErrorCode timeoutError = ErrorCode.TIMEOUT_ERROR;
+
+        return ResponseEntity
+            .status(Integer.parseInt(timeoutError.getCode()))
+            .body(new ErrorResponse(timeoutError.getCode(), timeoutError.getMessage()));
     }
 
     @ExceptionHandler(value = Exception.class)

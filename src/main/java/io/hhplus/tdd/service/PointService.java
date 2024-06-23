@@ -4,19 +4,19 @@ import io.hhplus.tdd.controller.PointController;
 import io.hhplus.tdd.domain.PointHistory;
 import io.hhplus.tdd.domain.TransactionType;
 import io.hhplus.tdd.domain.UserPoint;
-import io.hhplus.tdd.domain.exception.BadInputPointValueException;
-import io.hhplus.tdd.domain.exception.InsufficientPointsException;
 import io.hhplus.tdd.infrastructure.PointHistoryTable;
 import io.hhplus.tdd.infrastructure.UserPointTable;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
+@Builder
 @RequiredArgsConstructor
 public class PointService {
 
@@ -25,6 +25,7 @@ public class PointService {
     private final UserPointTable userPointTable;
     private final PointHistoryTable pointHistoryTable;
     private final PointValidator pointValidator;
+    private final LockHandler lockHandler;
 
     private final Lock lock = new ReentrantLock();
 
@@ -37,10 +38,9 @@ public class PointService {
     }
 
     public UserPoint charge(long userId, long amount) {
-        pointValidator.validatePointGreaterThanZero(amount);
+        return lockHandler.executeOnLock(userId, () -> {
+            pointValidator.validatePointGreaterThanZero(amount);
 
-        lock.lock();
-        try {
             UserPoint userPoint = userPointTable.selectById(userId);
             userPoint = userPointTable.insertOrUpdate(userId, userPoint.point() + amount);
 
@@ -48,16 +48,13 @@ public class PointService {
                 System.currentTimeMillis());
 
             return userPoint;
-        } finally {
-            lock.unlock();
-        }
+        });
     }
 
     public UserPoint use(long userId, long amount) {
-        pointValidator.validatePointGreaterThanZero(amount);
+        return lockHandler.executeOnLock(userId, () -> {
+            pointValidator.validatePointGreaterThanZero(amount);
 
-        lock.lock();
-        try {
             UserPoint userPoint = userPointTable.selectById(userId);
 
             pointValidator.validateSufficientPoints(amount, userPoint);
@@ -68,8 +65,6 @@ public class PointService {
                 System.currentTimeMillis());
 
             return userPoint;
-        } finally {
-            lock.unlock();
-        }
+        });
     }
 }
